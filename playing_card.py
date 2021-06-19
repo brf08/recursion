@@ -23,22 +23,38 @@ class Deck:
     '''
     Deck: creating deck with all cards of playing card
     '''
-    def __init__(self):
-        self.deck = self.generateDeck()
+    def __init__(self, gameMode=None):
+        self.deck = self.generateDeck(gameMode)
 
     @staticmethod
-    def generateDeck():
+    def generateDeck(gameMode=None):
         # creating all cards 
         newDeck = []
         values = ["A", "2", "3", "4", "5", "6", "7", \
             "8", "9", "10", "J", "Q", "K"]
+        blackJack = {"A":1, "J":10, "Q":10, "K":10}
         suits = ["♣", "♦", "♥", "♠"]
 
         for suit in suits:
             for i, value in enumerate(values):
-                #print(Card(value, suit, i + 1).getCardString())
-                newDeck.append(Card(value, suit, i + 1))
+                if gameMode == "21":
+                    if value in blackJack.keys():
+                        newDeck.append(Card(value, suit, (blackJack[value])))
+                    else:
+                        newDeck.append(Card(value, suit, int(value)))
+                else:
+                    newDeck.append(Card(value, suit, i + 1))
         
+        # alternative way to write
+        # for suit in suits:
+        #    for i, value in enumerate(values):
+        #        newDeck.append(Card(value, suit, (blackJack[value] if value in blackJack.keys() else int(value))\
+        #            if gameMode == "21" else i+1))
+
+        # code to debug
+        # for card in newDeck:
+        #    print(card.getCardString())
+
         return newDeck
     
     def printDeck(self):
@@ -67,7 +83,7 @@ class Dealer:
         table = {
             "players": [],
             "gameMode": gameMode,
-            "deck": Deck()
+            "deck": Deck(gameMode)
         }
 
         # Suffle a deck
@@ -113,6 +129,48 @@ class Dealer:
         # if the sum is more than 21 the player loses
         # so the score is set to 0
         return value if 21 >= value >= 1 else 0
+    
+    @staticmethod
+    def winnerOf21(table):
+        '''
+        Function to show who win the game "21"
+        1. calculate the score of each player by the function score21Individual
+           and store the score to the list "points"
+        2. calculate the number of the players for each score
+           and store the number to the dictionary "cache"
+        3. show the information below,
+            a. if the number of the player of the maximum score
+               (calculated by the function maxInArrayIndex in the class HelperFunctions)
+               is more than 1, show "It is a draw".
+            b. if the number is 1, show the winner
+            c. otherwise, show "No winner..."
+        '''
+        points = []
+        cache = {}
+        for cards in table["players"]:
+            point = Dealer.score21Individual(cards)
+            points.append(point)
+            if point in cache:
+                cache[point] += 1
+            else:
+                cache[point] = 1
+        
+        print(points)
+
+        winnerIndex = HelperFunctions.maxInArrayIndex(points)
+        if cache[points[winnerIndex]] > 1:
+            return "It is a draw"
+        elif cache[points[winnerIndex]] > 0:
+            return "player " + str(winnerIndex + 1) + " is the winner"
+        else:
+            return "No winners..."
+        
+    @staticmethod
+    def checkWinner(table):
+        if table["gameMode"] == "21":
+            return Dealer.winnerOf21(table)
+        else:
+            return "no game"
 
 class HelperFunctions:
     # the function that returns the index 
@@ -128,8 +186,10 @@ class HelperFunctions:
 
         return maxIndex
 
-arr1 = [1, 9, 19, 3, 4, 6]
-print(HelperFunctions. maxInArrayIndex(arr1))
+table1 = Dealer.startGame(4, "21")
+Dealer.printTableInformation(table1)
+print(Dealer.checkWinner(table1))
 
-arr2 = [5, 2, 1, 3, 5, 5]
-print(HelperFunctions.maxInArrayIndex(arr2))
+table2 = Dealer.startGame(4, "poker")
+Dealer.printTableInformation(table2)
+print(Dealer.checkWinner(table2))
