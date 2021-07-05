@@ -61,21 +61,36 @@ class SinglyLinkedList:
         # change the pointer of iterator from A to B
         iterator.next = iterator.next.next
     
-    def reverseHead(self):
-        iterator = self.head
-        head = iterator.next
-        iterator.next = None
-        index = 0
-        while head.next is not None:
-            previous = iterator
-            iterator = head
-            head = head.next
-            iterator.next = previous
-            index += 1
+    # def reverseHead(self):
+    #     if self.head is None or self.head.next is None: return
+    #     iterator = self.head
+    #     head = iterator.next
+    #     iterator.next = None
+    #     index = 0
+    #     while head.next is not None:
+    #         previous = iterator
+    #         iterator = head
+    #         head = head.next
+    #         iterator.next = previous
+    #         index += 1
         
-        previous = iterator
-        iterator = head
-        iterator.next = previous
+    #     previous = iterator
+    #     iterator = head
+    #     iterator.next = previous
+    #     self.head = iterator
+
+    def reverseHead(self):
+        if self.head is None or self.head.next is None: return
+        reverse = self.head
+        self.head = self.head.next
+        reverse.next = None
+        while self.head is not None:
+            temp = self.head
+            self.head = self.head.next
+            temp.next = reverse
+            reverse = temp
+        
+        self.head = reverse
 
 
     
